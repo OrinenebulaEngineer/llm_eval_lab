@@ -8,19 +8,14 @@ When we evaluate them, we often measure how *probable* a correct answer is under
 
 ## ⚙️ Mathematical Definition
 
-For a given input \( x \) (the context or question)
-and the correct answer \( y = (y_1, y_2, ..., y_T) \) (a sequence of tokens),
+For a given input *x* and correct answer *y = (y₁, y₂, ..., yₜ)*(a sequence of tokens),
 the probability of the answer is:
 
-\[
-P(y | x) = \prod_{t=1}^{T} P(y_t | x, y_{<t})
-\]
+\**P(y|x) = ∏ₜ₌₁ᵀ P(yₜ | x, y₍₍ₜ₋₁₎₎)**
 
 Taking the logarithm gives the **log-likelihood**:
 
-\[
-\log P(y | x) = \sum_{t=1}^{T} \log P(y_t | x, y_{<t})
-\]
+\**log P(y|x) = Σₜ₌₁ᵀ log P(yₜ | x, y₍₍ₜ₋₁₎₎)**
 
 This value tells us how *confident* the model is in the gold answer.
 
@@ -46,31 +41,27 @@ At each step:
 
 Suppose the question is:
 
-> *What collaboration helped Iran Khodro transform in the 1980s?*
+> چه همکاری‌ای در دههٔ ۱۳۶۰ به تحول ایران‌خودرو کمک کرد؟
 
 and the correct answer is:
 
-> *Peugeot’s cooperation announcement.*
+> اعلام آمادگی پژو برای همکاری
 
 We break the answer into tokens and get model probabilities like this:
 
-| t | Token | \(P(y_t | x, y_{<t})\) | \(\log P(y_t | x, y_{<t})\) |
-|---|--------|------------------|---------------|
+| t | Token | P(yₜ | x, y₍₍ₜ₋₁₎₎) | log P(yₜ | x, y₍₍ₜ₋₁₎₎) |
+|---|--------|------------------|----------------|
 | 1 | اعلام (*announcement*) | 0.25 | −1.386 |
-| 2 | آمادگی (*readiness*) | 0.40 | −0.916 |
-| 3 | پژو (*Peugeot*) | 0.10 | −2.302 |
-| 4 | برای (*for*) | 0.30 | −1.203 |
+| 2 | آمادگی (*readiness*)   | 0.40 | −0.916 |
+| 3 | پژو (*Peugeot*)        | 0.10 | −2.302 |
+| 4 | برای (*for*)           | 0.30 | −1.203 |
 | 5 | همکاری (*cooperation*) | 0.50 | −0.693 |
 
 Then:
 
-\[
-P(y|x) = 0.25 × 0.40 × 0.10 × 0.30 × 0.50 = 0.0015
-\]
+**P(y | x) = 0.25 × 0.40 × 0.10 × 0.30 × 0.50 = 0.0015**
 
-\[
-\log P(y|x) = -1.386 - 0.916 - 2.302 - 1.203 - 0.693 = -6.5
-\]
+**log P(y | x) = −1.386 − 0.916 − 2.302 − 1.203 − 0.693 = −6.5**
 
 So the **log-likelihood = −6.5**.
 
@@ -90,44 +81,6 @@ So the **log-likelihood = −6.5**.
 | 5    | `context + اعلام آمادگی پژو برای` | probabilities for all tokens | log P(“همکاری”) |
 
 This continues until all tokens in the gold answer are covered.
-
----
-
-## 💻 Implementation in PyTorch
-
-Here’s a minimal working example using the Hugging Face `transformers` library:
-
-```python
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import torch
-
-model_id = "google/gemma-2b-it"
-tokenizer = AutoTokenizer.from_pretrained(model_id)
-model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.float16, device_map="auto")
-
-context = "In the 1980s, Iran Khodro faced a major economic crisis..."
-answer = "Peugeot announced its readiness to cooperate"
-
-input_text = context + " " + answer
-tokens = tokenizer(input_text, return_tensors="pt").to(model.device)
-
-with torch.no_grad():
-    outputs = model(**tokens)
-    logits = outputs.logits[:, :-1, :]  # Predictions for next tokens
-    labels = tokens.input_ids[:, 1:]    # True next tokens
-
-    log_probs = torch.log_softmax(logits, dim=-1)
-    token_log_likelihoods = log_probs.gather(2, labels.unsqueeze(-1)).squeeze(-1)
-    log_likelihood = token_log_likelihoods.sum().item()
-
-print(f"Total log-likelihood: {log_likelihood:.2f}")
-```
-
-This implements the formula:
-
-\[
-\log P(y|x) = \sum_{t=1}^{T} \log P(y_t | x, y_{<t})
-\]
 
 ---
 

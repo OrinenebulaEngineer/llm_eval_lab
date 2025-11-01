@@ -49,12 +49,12 @@ and the correct answer is:
 
 We break the answer into tokens and get model probabilities like this:
 
-| t | Token | P(yₜ | x, y₍₍ₜ₋₁₎₎) | log P(yₜ | x, y₍₍ₜ₋₁₎₎) |
-|---|--------|------------------|----------------|
+| # | Token | Probability P(yₜ | x, y₍₍ₜ₋₁₎₎) | log P(yₜ | x, y₍₍ₜ₋₁₎₎) |
+|:-:|:----------------------|:----------------:|:----------------:|
 | 1 | اعلام (*announcement*) | 0.25 | −1.386 |
-| 2 | آمادگی (*readiness*)   | 0.40 | −0.916 |
-| 3 | پژو (*Peugeot*)        | 0.10 | −2.302 |
-| 4 | برای (*for*)           | 0.30 | −1.203 |
+| 2 | آمادگی (*readiness*) | 0.40 | −0.916 |
+| 3 | پژو (*Peugeot*) | 0.10 | −2.302 |
+| 4 | برای (*for*) | 0.30 | −1.203 |
 | 5 | همکاری (*cooperation*) | 0.50 | −0.693 |
 
 Then:

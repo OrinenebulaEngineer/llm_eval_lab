@@ -49,8 +49,8 @@ and the correct answer is:
 
 We break the answer into tokens and get model probabilities like this:
 
-| # | Token | Probability P(yₜ | x, y₍₍ₜ₋₁₎₎) | log P(yₜ | x, y₍₍ₜ₋₁₎₎) |
-|:-:|:----------------------|:----------------:|:----------------:|
+| 🔢 Step | 🪶 Token | 🔢 Probability \(P(y_t | x, y_{<t})\) | 🧮 Log Probability \(\log P(y_t | x, y_{<t})\) |
+|:--:|:---------------------------|:----------------:|:----------------:|
 | 1 | اعلام (*announcement*) | 0.25 | −1.386 |
 | 2 | آمادگی (*readiness*) | 0.40 | −0.916 |
 | 3 | پژو (*Peugeot*) | 0.10 | −2.302 |
